@@ -1,5 +1,5 @@
 # scripts/09_verify_observability.py
-import requests
+import requests, os
 
 def check_prometheus():
     resp = requests.get("http://localhost:9090/api/v1/query",
@@ -17,4 +17,8 @@ def check_langsmith():
     print("Integration 10 OK: LangSmith traces visible")
 
 check_prometheus()
-check_langsmith()
+
+if os.environ.get("LANGCHAIN_API_KEY"):
+    check_langsmith()
+else:
+    print("Integration 10 SKIP: LANGCHAIN_API_KEY not set")

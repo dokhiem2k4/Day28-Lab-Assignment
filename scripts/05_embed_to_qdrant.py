@@ -4,11 +4,18 @@ from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams, PointStruct
 import os
 
-EMBED_URL = os.environ["EMBED_NGROK_URL"]
+EMBED_URL = os.environ.get("EMBED_NGROK_URL", "")
+if not EMBED_URL:
+    raise SystemExit("ERROR: EMBED_NGROK_URL not set. Set it in .env first.")
+
 qdrant = QdrantClient(host="localhost", port=6333)
 
-# Tạo collection
-qdrant.recreate_collection(
+# Tạo collection (xóa cũ nếu tồn tại)
+try:
+    qdrant.delete_collection("documents")
+except Exception:
+    pass
+qdrant.create_collection(
     collection_name="documents",
     vectors_config=VectorParams(size=384, distance=Distance.COSINE)
 )
